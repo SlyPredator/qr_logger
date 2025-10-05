@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>QR Log Landing</title>
+  <script src="https://openfpcdn.io/fingerprintjs/v4"></script>
+</head>
+<body>
+  <h2>Logging your scan...</h2>
+  <div id="status"></div>
+
+  <script>
+    // Helper to parse ?name=... from URL
+    function getQueryParam(param) {
+      let urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param);
+    }
+
+    // Load FingerprintJS
+    const fpPromise = import('https://openfpcdn.io/fingerprintjs/v4')
+      .then(FingerprintJS => FingerprintJS.load());
+
+    fpPromise
+      .then(fp => fp.get())
+      .then(result => {
+        const visitorId = result.visitorId;
+        const name = getQueryParam('name') || "Unknown";
+        const postData = {
+          name: name,
+          uid: visitorId
+        };
+        // Post to Google Apps Script Web App
+        return fetch('https://script.google.com/macros/s/AKfycbwBHmyG3YS_RuXJrxhkrFqYvO-Y_eyMF_X-X-lJQc6_DaaC7flQw3QS7YVqB9pUu6Ry/exec', {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(postData)
+        });
+      })
+      .then(() => {
+        document.getElementById('status').innerText = 'Logged! You may close this tab.';
+      })
+      .catch(err => {
+        document.getElementById('status').innerText = 'Error: ' + err;
+      });
+  </script>
+</body>
+</html>
