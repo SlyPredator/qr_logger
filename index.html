@@ -1,62 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>QR Log Landing</title>
-  <script
-  async
-  src="https://openfpcdn.io/fingerprintjs/v4.6.2"></script>
+  <meta charset="UTF-8" />
+  <title>QR Logger</title>
 </head>
 <body>
   <h2>Logging your scan...</h2>
   <div id="status"></div>
 
-<script>
-  // Wait for FingerprintJS to be ready
-  function getFingerprint() {
-    return new Promise((resolve) => {
-      if (window.FingerprintJS) {
-        FingerprintJS.load().then(fp => fp.get().then(result => resolve(result.visitorId)));
-      } else {
-        // Wait for the library to load if not yet ready
-        let check = setInterval(() => {
-          if (window.FingerprintJS) {
-            clearInterval(check);
-            FingerprintJS.load().then(fp => fp.get().then(result => resolve(result.visitorId)));
-          }
-        }, 50);
+  <script>
+    function getQueryParam(param) {
+      let urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param);
+    }
+
+    async function main() {
+      const name = getQueryParam('name') || 'Unknown';
+      const postData = { name: name };
+
+      // Replace below with your Google Apps Script Web App URL
+      const endpoint = 'https://script.google.com/macros/s/AKfycbwBHmyG3YS_RuXJrxhkrFqYvO-Y_eyMF_X-X-lJQc6_DaaC7flQw3QS7YVqB9pUu6Ry/exec';
+
+      try {
+        let response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(postData),
+        });
+        if (response.ok) {
+          document.getElementById('status').innerText = 'Logged! You may close this tab.';
+        } else {
+          document.getElementById('status').innerText =
+            'Logging failed. HTTP: ' + response.status;
+        }
+      } catch (e) {
+        document.getElementById('status').innerText = 'Network error: ' + e;
       }
-    });
-  }
+    }
 
-  function getQueryParam(param) {
-    let urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get(param);
-  }
-
-  getFingerprint().then(visitorId => {
-    const name = getQueryParam('name') || "Unknown";
-    const postData = {
-      name: name,
-      uid: visitorId
-    };
-    // Post to Google Apps Script Web App
-    fetch('https://script.google.com/macros/s/AKfycbwBHmyG3YS_RuXJrxhkrFqYvO-Y_eyMF_X-X-lJQc6_DaaC7flQw3QS7YVqB9pUu6Ry/exec', {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(postData)
-    })
-    .then(() => {
-      document.getElementById('status').innerText = 'Logged! You may close this tab.';
-    })
-    .catch(err => {
-      document.getElementById('status').innerText = 'Error: ' + err;
-    });
-  });
-</script>
-
+    main();
+  </script>
 </body>
 </html>
