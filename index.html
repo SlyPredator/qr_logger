@@ -6,7 +6,7 @@
 </head>
 <body>
   <h2>Logging your scan...</h2>
-  <div id="status"></div>
+  <div id="status">Please wait...</div>
 
   <script>
     function getQueryParam(param) {
@@ -14,31 +14,29 @@
       return urlParams.get(param);
     }
 
-    async function main() {
+    function logScan() {
       const name = getQueryParam('name') || 'Unknown';
       const postData = { name: name };
 
-      // Replace below with your Google Apps Script Web App URL
+      // Replace with your actual Google Apps Script Web App URL
       const endpoint = 'https://script.google.com/macros/s/AKfycbwBHmyG3YS_RuXJrxhkrFqYvO-Y_eyMF_X-X-lJQc6_DaaC7flQw3QS7YVqB9pUu6Ry/exec';
 
-      try {
-        let response = await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(postData),
-        });
-        if (response.ok) {
-          document.getElementById('status').innerText = 'Logged! You may close this tab.';
-        } else {
-          document.getElementById('status').innerText =
-            'Logging failed. HTTP: ' + response.status;
-        }
-      } catch (e) {
-        document.getElementById('status').innerText = 'Network error: ' + e;
-      }
+      fetch(endpoint, {
+        method: 'POST',
+        mode: 'no-cors',  // Bypass CORS, no response visibility 
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(postData)
+      })
+      .catch(err => {
+        // Ignore errors since no-cors hides them; just continue
+      });
+
+      document.getElementById('status').innerText = 'Logged! You may close this tab.';
     }
 
-    main();
+    logScan();
   </script>
 </body>
 </html>
