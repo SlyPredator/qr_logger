@@ -5,7 +5,7 @@ function doGet(e) {
 }
 
 function logUser(userName, deviceUUID) {
-  var ss = SpreadsheetApp.openById("1bPJuSc4EUNM6zJ4Jy3qSZmtuXasu1TMuVAdc7SCZvZg");
+  var ss = SpreadsheetApp.openById("ADD SHEET ID HERE");
   var sheet = ss.getSheetByName("Scanned Data");
   sheet.appendRow([new Date(), userName, deviceUUID]);
 }
